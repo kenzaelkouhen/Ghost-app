@@ -70,9 +70,9 @@ resource "aws_ecs_task_definition" "app_task" {
       protocol      = "tcp"
     }]
     environment = [
-      { name  = "DB_HOST"; value = aws_db_instance.app_db.address },
-      { name  = "DB_USER"; value = var.db_username },
-      { name  = "DB_PASS"; value = var.db_password }
+      { name  = "DB_HOST", value = aws_db_instance.app_db.address },
+      { name  = "DB_USER", value = var.db_username },
+      { name  = "DB_PASS", value = var.db_password }
     ]
   }])
 }
