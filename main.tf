@@ -31,17 +31,21 @@ resource "aws_security_group" "app_sg" {
 }
 
 resource "aws_db_instance" "app_db" {
-  identifier              = "${var.app_name}-db"
-  engine                 = "mysql"
-  engine_version         = "8.0"
-  instance_class         = "db.t2.micro"  # Free tier eligible
-  allocated_storage       = 20
-  username               = var.db_username
-  password               = var.db_password
-  db_name                = "ghost"
-  skip_final_snapshot    = true
-  vpc_security_group_ids  = [aws_security_group.app_sg.id]
-  tags = { Name = "${var.app_name}-db" }
+  identifier         = "ghost-app-db"
+  allocated_storage   = 20
+  storage_type       = "gp2"
+  engine             = "mysql"
+  engine_version     = "8.0.28" # Change to a supported version
+  instance_class     = "db.t3.micro" # Use a different instance class
+  username           = var.db_username
+  password           = var.db_password
+  db_name            = var.db_name
+  skip_final_snapshot = true
+  vpc_security_group_ids = [aws_security_group.your_db_sg.id] # Ensure you have a security group
+
+  tags = {
+    Name = "ghost-app-db"
+  }
 }
 
 resource "aws_ecr_repository" "app_repo" {
@@ -95,12 +99,21 @@ resource "aws_ecs_service" "app_service" {
 }
 
 resource "aws_lb" "app_lb" {
-  name               = "${var.app_name}-lb"
+  name               = "ghost-app-lb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.app_sg.id]
-  subnets            = [aws_subnet.app_subnet.id]
+  security_groups    = [aws_security_group.your_sg.id] # Ensure you have a security group
+  subnets            = [
+    aws_subnet.subnet1.id,
+    aws_subnet.subnet2.id, # Ensure you have at least two subnets in different AZs
+  ]
+
   enable_deletion_protection = false
+  idle_timeout               = 60
+
+  tags = {
+    Name = "ghost-app-lb"
+  }
 }
 
 resource "aws_lb_target_group" "app_target_group" {
