@@ -1,5 +1,5 @@
-aws_access_key = "AKIAYLSWLBQDSRGNWQ3U"
-aws_secret_key = "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"
+aws_access_key = 
+aws_secret_key = 
 aws_region     = "us-east-1"
 app_name = "ghost-app"
 db_username = "admin"
