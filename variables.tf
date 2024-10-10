@@ -8,12 +8,4 @@ variable "app_name" {
   default     = "ghost-app"
 }
 
-variable "db_username" {
-  description = "The database username"
-  default     = "admin"
-}
 
-variable "db_password" {
-  description = "The database password"
-  default     = "kenza123"  
-}

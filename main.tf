@@ -1,50 +1,14 @@
-resource "aws_vpc" "app_vpc" {
-  cidr_block = "10.0.0.0/16"
-  tags = { Name = "${var.app_name}-vpc" }
-}
 
-resource "aws_subnet" "app_subnet" {
-  vpc_id            = aws_vpc.app_vpc.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "${var.aws_region}a"
-  tags = { Name = "${var.app_name}-subnet" }
-}
 
-resource "aws_security_group" "app_sg" {
-  vpc_id = aws_vpc.app_vpc.id
+resource "aws_security_group" "sg" {
+  name   = "sg"
+  vpc_id = "vpc-0d5b654c20f1688f5"  
 
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = 2368
+    to_port     = 2368
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = { Name = "${var.app_name}-sg" }
-}
-
-resource "aws_db_instance" "app_db" {
-  identifier         = "ghost-app-db"
-  allocated_storage   = 20
-  storage_type       = "gp2"
-  engine             = "mysql"
-  engine_version     = "8.0.28" # Change to a supported version
-  instance_class     = "db.t3.micro" # Use a different instance class
-  username           = var.db_username
-  password           = var.db_password
-  db_name            = var.db_name
-  skip_final_snapshot = true
-  vpc_security_group_ids = [aws_security_group.your_db_sg.id] # Ensure you have a security group
-
-  tags = {
-    Name = "ghost-app-db"
   }
 }
 
@@ -56,88 +20,76 @@ resource "aws_ecs_cluster" "app_cluster" {
   name = "${var.app_name}-cluster"
 }
 
-resource "aws_ecs_task_definition" "app_task" {
+resource "aws_ecs_task_definition" "ghost_task" {
   family                   = "${var.app_name}-task"
-  requires_compatibilities = ["EC2"]
-  network_mode            = "bridge"
-  cpu                     = "256"
-  memory                  = "512"
-
-  container_definitions = jsonencode([{
-    name  = "${var.app_name}-container"
-    image = "${aws_ecr_repository.app_repo.repository_url}:latest"
-    memory = 512
-    cpu    = 256
-    portMappings = [{
-      containerPort = 80
-      hostPort      = 80
-      protocol      = "tcp"
-    }]
-    environment = [
-      { name  = "DB_HOST", value = aws_db_instance.app_db.address },
-      { name  = "DB_USER", value = var.db_username },
-      { name  = "DB_PASS", value = var.db_password }
-    ]
-  }])
+  execution_role_arn      = aws_iam_role.ecs_execution_role.arn
+  network_mode            = "awsvpc"
+  cpu   = 256
+  memory = 512
+  
+  container_definitions = jsonencode([
+    {
+      name      = "ghost"
+      image     = "574632954887.dkr.ecr.us-east-1.amazonaws.com/ghost-app-repo:latest"
+      essential = true
+      portMappings = [
+        {
+          containerPort = 2368
+          hostPort      = 2368
+          protocol      = "tcp"
+        }
+      ]
+    }
+  ])
 }
 
-resource "aws_ecs_service" "app_service" {
+resource "aws_ecs_service" "ghost_service" {
   name            = "${var.app_name}-service"
   cluster         = aws_ecs_cluster.app_cluster.id
-  task_definition = aws_ecs_task_definition.app_task.id
-  desired_count   = 1
-  launch_type     = "EC2"
-  depends_on      = [aws_db_instance.app_db]
+  task_definition = aws_ecs_task_definition.ghost_task.arn
+  desired_count   = 2  # Maintain 2 tasks
+  launch_type     = "FARGATE"
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.app_target_group.arn
-    container_name   = "${var.app_name}-container"
-    container_port   = 80
-  }
-
-  tags = { Name = "${var.app_name}-service" }
-}
-
-resource "aws_lb" "app_lb" {
-  name               = "ghost-app-lb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.your_sg.id] # Ensure you have a security group
-  subnets            = [
-    aws_subnet.subnet1.id,
-    aws_subnet.subnet2.id, # Ensure you have at least two subnets in different AZs
-  ]
-
-  enable_deletion_protection = false
-  idle_timeout               = 60
-
-  tags = {
-    Name = "ghost-app-lb"
+  network_configuration {
+    subnets          = ["subnet-0928b9f8459f74a83", "subnet-0787f7cfae0f5f1bd"] 
+    security_groups  = [aws_security_group.sg.id]
+    assign_public_ip = true
   }
 }
 
-resource "aws_lb_target_group" "app_target_group" {
-  name     = "${var.app_name}-target-group"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.app_vpc.id
-
-  health_check {
-    path                = "/"
-    interval            = 30
-    timeout             = 5
-    healthy_threshold  = 2
-    unhealthy_threshold = 2
-  }
+resource "aws_appautoscaling_target" "ecs_service_target" {
+  max_capacity       = 10  # Maximum tasks
+  min_capacity       = 2   # Minimum tasks
+  resource_id        = "service/${aws_ecs_cluster.app_cluster.name}/${aws_ecs_service.ghost_service.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
 }
 
-resource "aws_lb_listener" "app_listener" {
-  load_balancer_arn = aws_lb.app_lb.arn
-  port              = 80
-  protocol          = "HTTP"
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.app_target_group.arn
-  }
+resource "aws_iam_role_policy_attachment" "ecs_execution_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  role       = aws_iam_role.ecs_execution_role.name
 }
+
+resource "aws_iam_role" "ecs_execution_role" {
+  name = "${var.app_name}-ecs-execution-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action    = "sts:AssumeRole"
+        Effect    = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+output "public_ips" {
+  value = aws_ecs_service.ghost_service.network_configuration[0].assign_public_ip
+}
+
+
