@@ -3,7 +3,7 @@ resource "aws_lb" "my_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
-  subnets            = ["subnet-0250e1c137131e1dc", "subnet-0f3054a95428ef993"]
+  subnets            = [data.aws_subnet.subnet_1.id, data.aws_subnet.subnet_2.id]
 
   enable_deletion_protection = false
 
@@ -27,7 +27,7 @@ resource "aws_lb_target_group" "my_target_group" {
   name     = "ghost-target-group"
   port     = 2368  # The port Ghost listens on
   protocol = "HTTP"
-  vpc_id   = "vpc-0b587c14daf24f26c"
+  vpc_id   = [data.aws_vpc.default.id]
 
   health_check {
     healthy_threshold   = 2
@@ -46,7 +46,7 @@ resource "aws_lb_target_group" "my_target_group" {
 resource "aws_security_group" "alb_sg" {
   name        = "alb-sg"
   description = "Security group for the Application Load Balancer"
-  vpc_id      = "vpc-0b587c14daf24f26c"  
+  vpc_id      = [data.aws_vpc.default.id]
 
   // Ingress rules
   ingress {
