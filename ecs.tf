@@ -5,7 +5,7 @@ resource "aws_ecs_cluster" "app_cluster" {
 resource "aws_security_group" "ecs_sg" {
   name        = "ecs-service-sg"
   description = "Security group for ECS service"
-  vpc_id      = [data.aws_vpc.default.id]
+  vpc_id      = data.aws_vpc.default.id
 
   // Ingress rule
   ingress {
