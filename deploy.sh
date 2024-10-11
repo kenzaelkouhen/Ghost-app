@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variables (adjust these as needed)
-AWS_ACCOUNT_ID="your_aws_account_id"  # Set this as needed
+AWS_ACCOUNT_ID="724772094190"  # Set this as needed
 AWS_REGION="us-east-1"            
 ECR_REPO_NAME="ghost-app-repo"
 IMAGE_TAG="latest"
