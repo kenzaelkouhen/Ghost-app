@@ -1,7 +1,8 @@
 Dependencies/Software needed before proceeding:
 - An IDE of your choice to pull the repo locally and proceed with the steps
 - Hashicorp Terraform and AWS Toolkit extension
-- Optional: AWS CLI  
+- Optional: AWS CLI
+- An AWS account where you need to create a dummy user with AdministratorAccess Policy. Copy the access and secret key somewhere safe to use it later.
 
 
 Steps to deploy the Infrastructure Application to AWS and open it in your browser: 
