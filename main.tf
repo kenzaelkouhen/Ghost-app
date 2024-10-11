@@ -14,7 +14,7 @@ data "aws_subnet" "subnet_1" {
     values = [data.aws_vpc.default.id]
   }
 
-  # You can also specify the availability zone if needed
+  
   filter {
     name   = "availability-zone"
     values = ["us-east-1a"]  # Adjust to your preferred AZ
