@@ -6,6 +6,7 @@ Dependencies/Software needed before proceeding:
 - Default output format json for the aws configure step and default region us-east-1.
 
 
+
 Steps to deploy the Infrastructure Application to AWS and open it in your browser: 
 1. Start by downloading the repository locally and change the unique values of the deploy.sh file following your credentials and choosing the putting the region default as "us-east-1".
    
