@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variables (adjust these as needed)
-AWS_ACCOUNT_ID="your_aws_account_id"  
+AWS_ACCOUNT_ID="your_aws_account_id"  # Set this 
 AWS_REGION="us-east-1"            
 ECR_REPO_NAME="ghost-app-repo"
 IMAGE_TAG="latest"
@@ -19,9 +19,15 @@ terraform init
 echo "Planning Terraform changes..."
 terraform plan -out=tfplan
 
-echo "Applying Terraform changes..."
-terraform apply tfplan
+# Prompt for confirmation before applying changes
+read -p "Do you want to apply these changes? (yes/no): " confirm
 
+if [[ "$confirm" == "yes" ]]; then
+    echo "Applying Terraform changes..."
+    terraform apply tfplan
+else
+    echo "Terraform apply was cancelled."
+fi
 
 # Login to ECR
 echo "Logging in to Amazon ECR..."
@@ -43,12 +49,17 @@ docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/$ECR_REPO_NAME
 echo "Updating ecs.tf file..."
 sed -i '' "41s|image *= *\".*\"|image = \"${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG\"|" ecs.tf
 
-terraform refresh
-
 echo "Planning Terraform changes with the image pushed..."
 terraform plan -out=tfplan
 
-echo "Applying Terraform changes..."
-terraform apply tfplan
+# Prompt for confirmation before applying changes
+read -p "Do you want to apply these changes? (yes/no): " confirm
 
-echo "Deployment complete."
+if [[ "$confirm" == "yes" ]]; then
+    echo "Applying Terraform changes..."
+    terraform apply tfplan
+else
+    echo "Terraform apply was cancelled."
+fi
+
+echo "Deployment complete." Please copy the load balance dns in your browser to access the web 
