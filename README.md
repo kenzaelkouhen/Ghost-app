@@ -1,12 +1,1 @@
-Dependencies/Software needed before proceeding:
-- An IDE of your choice to pull the repo locally and proceed with the steps
-- Hashicorp Terraform and AWS Toolkit extension
-- Optional: AWS CLI  
-
-
-Steps to deploy the Infrastructure Application to AWS and open it in your browser: 
-1. Start by downloading the repository locally and change the unique values of the deploy.sh file following your credentials and choosing the putting the region default as "us-east-1".
-
-2. Execute the deploy.sh file through your terminal.
-
-3. After the "terraform apply"; a load balancer dns will be shown in your cli; this one will be the url to access the ghost web app accordingly, paste it in your browser and enjoy the "ghost app" :)
+THIS BRANCH IS FOR TESTING PURPOSES ONLY; PLEASE USE THE MAIN BRANCH.
