@@ -10,6 +10,9 @@ DOCKERFILE_PATH="./docker/Dockerfile"
 # Connect to your AWS account 
 aws configure 
 
+# Access the configuration tf files repo
+cd infra
+
 # Terraform commands
 echo "Initializing Terraform..."
 terraform init
@@ -19,6 +22,9 @@ terraform plan -out=tfplan
 
 echo "Applying Terraform changes..."
 terraform apply tfplan
+
+# Access the Dockerfile
+cd docker
 
 # Login to ECR
 echo "Logging in to Amazon ECR..."
