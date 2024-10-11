@@ -27,7 +27,7 @@ resource "aws_lb_target_group" "my_target_group" {
   name     = "ghost-target-group"
   port     = 2368  # The port Ghost listens on
   protocol = "HTTP"
-  vpc_id   = [data.aws_vpc.default.id]
+  vpc_id   = data.aws_vpc.default.id
 
   health_check {
     healthy_threshold   = 2
