@@ -1,14 +1,11 @@
 #!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status
-set -e
-
 # Variables (adjust these as needed)
 AWS_ACCOUNT_ID="your_aws_account_id"  # Set this as needed
 AWS_REGION="your_aws_region"            # Set this as needed
 ECR_REPO_NAME="ghost-app-repo"
 IMAGE_TAG="latest"
-DOCKERFILE_PATH="./src/Dockerfile"
+DOCKERFILE_PATH="./docker/Dockerfile"
 
 # Login to ECR
 echo "Logging in to Amazon ECR..."
