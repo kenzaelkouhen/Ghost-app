@@ -46,7 +46,7 @@ resource "aws_lb_target_group" "my_target_group" {
 resource "aws_security_group" "alb_sg" {
   name        = "alb-sg"
   description = "Security group for the Application Load Balancer"
-  vpc_id      = [data.aws_vpc.default.id]
+  vpc_id      = data.aws_vpc.default.id
 
   // Ingress rules
   ingress {
