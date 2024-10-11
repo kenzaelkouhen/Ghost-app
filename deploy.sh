@@ -42,6 +42,10 @@ docker tag $ECR_REPO_NAME:$IMAGE_TAG ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.ama
 echo "Pushing Docker image to ECR..."
 docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG
 
+#Referencing the image to the ecs task definition
+echo "Updating ecs.tf file..."
+sed -i '' "41s|image *= *\".*\"|image = \"${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG\"|" "./terraform/ecs.tf"
+
 echo "Planning Terraform changes with the image pushed..."
 terraform plan -out=tfplan
 
