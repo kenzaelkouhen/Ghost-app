@@ -8,7 +8,7 @@ IMAGE_TAG="latest"
 DOCKERFILE_PATH="./docker/Dockerfile"
 
 # Connect to your AWS account 
-# aws configure 
+aws configure 
 
 # Terraform commands
 echo "Initializing Terraform..."
