@@ -38,7 +38,7 @@ resource "aws_ecs_task_definition" "ghost_task" {
   container_definitions = jsonencode([
     {
       name      = "ghost-container"
-      image = "724772094190.dkr.ecr.us-east-1.amazonaws.com/ghost-app-repo:latest"
+      image = "image"
       essential = true
       portMappings = [
         {
@@ -112,6 +112,9 @@ resource "aws_iam_role" "ecs_execution_role" {
     ]
   })
 }
+
+
+
 
 
 

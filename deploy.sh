@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variables (adjust these as needed)
-AWS_ACCOUNT_ID="724772094190"  # Set this as needed
+AWS_ACCOUNT_ID="your_aws_account_id"  # Set this 
 AWS_REGION="us-east-1"            
 ECR_REPO_NAME="ghost-app-repo"
 IMAGE_TAG="latest"
@@ -48,8 +48,6 @@ docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/$ECR_REPO_NAME
 #Referencing the image to the ecs task definition
 echo "Updating ecs.tf file..."
 sed -i '' "41s|image *= *\".*\"|image = \"${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG\"|" ecs.tf
-
-terraform refresh
 
 echo "Planning Terraform changes with the image pushed..."
 terraform plan -out=tfplan
