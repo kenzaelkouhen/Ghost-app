@@ -3,7 +3,7 @@ Dependencies/Software needed before proceeding:
 - Hashicorp Terraform and AWS Toolkit extension
 - Optional: AWS CLI
 - An AWS account where you need to create a dummy user with AdministratorAccess Policy. Copy the access and secret key somewhere safe to use it later.
-- Default output format json for the aws configure step.
+- Default output format json for the aws configure step and default region us-east-1.
 
 
 Steps to deploy the Infrastructure Application to AWS and open it in your browser: 
